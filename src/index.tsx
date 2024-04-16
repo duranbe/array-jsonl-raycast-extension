@@ -1,4 +1,5 @@
 import { Form, ActionPanel, Action, showToast } from "@raycast/api";
+import { useState } from "react";
 
 type Values = {
   textfield: string;
@@ -10,8 +11,13 @@ type Values = {
 };
 
 export default function Command() {
+  const [result, setResult] = useState<string>('');
+  
   function handleSubmit(values: Values) {
-    console.log(values);
+    let val: string = values['input-textarea'];
+    val = `{"data":${val}}`
+    let jsonVal = JSON.parse(val);  
+    setResult(jsonVal.data.map(JSON.stringify).join('\n'));
     showToast({ title: "Submitted form", message: "See logs for submitted values" });
   }
 
@@ -26,7 +32,7 @@ export default function Command() {
 
       <Form.TextArea id="input-textarea" title="Text area" placeholder="Enter multi-line text" />
       <Form.Separator />
-      <Form.TextArea id="textarea" title="Text area" placeholder="Enter multi-line text" />
+      <Form.TextArea id="textarea" title="Text area" placeholder="Enter multi-line text" value={result} onChange={setResult} />
 
     </Form>
   );
