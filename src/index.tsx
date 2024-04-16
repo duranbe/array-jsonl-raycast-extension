@@ -1,4 +1,4 @@
-import { Form, ActionPanel, Action, showToast } from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Toast } from "@raycast/api";
 import { useState } from "react";
 
 type Values = {
@@ -15,10 +15,24 @@ export default function Command() {
   
   function handleSubmit(values: Values) {
     let val: string = values['input-textarea'];
-    val = `{"data":${val}}`
-    let jsonVal = JSON.parse(val);  
-    setResult(jsonVal.data.map(JSON.stringify).join('\n'));
-    showToast({ title: "Submitted form", message: "See logs for submitted values" });
+    if(!val.startsWith('[') || !val.endsWith(']')){
+      showToast({
+        style: Toast.Style.Failure,
+        title: 'Please copy a valid JSON/JS Object',
+      });
+      return;
+    }
+    try {
+      let jsonVal = JSON.parse(`{"data":${val}}`);  
+      setResult(jsonVal.data.map(JSON.stringify).join('\n'));
+      showToast({ title: "Formatting Done", message: "Formatting to Jsonl done" });
+    } catch (e) {
+      showToast({
+        style: Toast.Style.Failure,
+        title: 'Invalid Json Input : '+e,
+      });
+    }
+    
   }
 
   return (
